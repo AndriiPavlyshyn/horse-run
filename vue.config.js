@@ -1,6 +1,9 @@
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
 module.exports = {
+	publicPath: process.env.NODE_ENV === 'production'
+		? '/horse-running/'
+		: '/',
 	configureWebpack: {
 		resolve: {
 			extensions: ['.ts', '.js', '.vue']
