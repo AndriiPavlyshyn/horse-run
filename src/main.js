@@ -2,6 +2,8 @@ import Vue from 'vue'
 import App from './App.vue'
 import store from './store'
 
+import "/node_modules/normalize.css/normalize.css";
+
 Vue.config.productionTip = false
 
 new Vue({

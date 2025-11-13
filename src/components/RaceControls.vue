@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import {RunStatus} from "@/types/interfaces";
 import { defineComponent, computed } from 'vue'
 import { useStore } from '@/hooks/useStore'
 
@@ -24,7 +25,7 @@ export default defineComponent({
 		const store = useStore()
 
 		const isReady = computed(() => {
-			return store.state.status === 'ready'
+			return store.state.status === RunStatus.READY
 		})
 
 		const generateGame = () => {

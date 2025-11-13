@@ -21,3 +21,10 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Cypress
+cypress/screenshots
+cypress/videos
+
+# Jest
+coverage

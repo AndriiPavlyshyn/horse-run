@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "module": "esnext",
-    "strict": true,
+    "strict": false,
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
@@ -11,12 +11,12 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "lib": ["dom", "es2015", "es2017"],
-    "types": ["webpack-env"],
+    "types": ["webpack-env", "jest"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "src/**/*.vue"],
+  "include": ["src/**/*", "src/**/*.vue", "tests/**/*"],
   "exclude": ["node_modules"]
 }

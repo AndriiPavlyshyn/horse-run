@@ -31,18 +31,18 @@
 		</div>
 
 		<div v-else class="no-race">
-			<p v-if="status === 'idle'">Click "Generate Game" to create new game</p>
+			<p v-if="status === RunStatus.IDLE">Click "Generate Game" to create new game</p>
 
-			<div v-else-if="status === 'ready'" class="game-info">
+			<div v-else-if="status === RunStatus.READY" class="game-info">
 				<p class="info-title">Game generated!</p>
 				<p>Horses: {{ horsesCount }}</p>
 				<p>Rounds: {{ roundsCount }}</p>
 				<p class="info-subtitle">Click "Start Race" to start a competition</p>
 			</div>
 
-			<div v-else-if="status === 'finished'" class="winner-section">
+			<div v-else-if="status === RunStatus.FINISHED" class="winner-section">
 				<p class="winner-title">🏆 Winner:</p>
-				<p class="winner-name">{{ getWinnerName() }}</p>
+				<p class="winner-name">{{ getWinnerName }}</p>
 				<p class="winner-subtitle">Full results are on the right ></p>
 			</div>
 		</div>
@@ -51,6 +51,7 @@
 </template>
 
 <script>
+import {RunStatus} from "@/types/interfaces";
 import { defineComponent, computed, ref, watch } from 'vue'
 import { useStore } from '@/hooks/useStore'
 
@@ -87,7 +88,7 @@ export default defineComponent({
 			return horse ? horse.name : ''
 		}
 
-		const getWinnerName = () => {
+		const getWinnerName = computed(() => {
 			const allResults = results.value
 			if (allResults.length === 0) {
 				return ''
@@ -115,7 +116,7 @@ export default defineComponent({
 			})
 
 			return getHorseName(winnerId)
-		}
+		})
 
 		const getHorseColor = (horseId) => {
 			const horse = store.getters.getHorseById(horseId)
@@ -190,32 +191,58 @@ export default defineComponent({
 			return position + 1
 		}
 
-		watch(currentRound, (newRound) => {
+		watch([currentRound, results], ([newRound, newResults], _, onCleanup) => {
 			if (!newRound) {
+				animatingHorses.value = new Map()
+				finishedHorses.value = new Map()
+
+				return
+			}
+
+			const roundResult = newResults.find(r => r.roundId === newRound.id)
+
+			if (!roundResult) {
+				animatingHorses.value = new Map()
+				finishedHorses.value = new Map()
+
 				return
 			}
 
 			animatingHorses.value = new Map()
 			finishedHorses.value = new Map()
 
-			setTimeout(() => {
-				animatingHorses.value = new Map(
-					newRound.horseIds.map(id => [id, true])
-				)
+			let t1, t2
+			const t3s = []
 
-				newRound.horseIds.forEach(horseId => {
-					const time = getHorseTime(horseId)
-					if (time > 0) {
-						setTimeout(() => {
-							finishedHorses.value.set(horseId, true)
-							finishedHorses.value = new Map(finishedHorses.value)
-						}, time)
-					}
-				})
-			}, 50)
+			t1 = setTimeout(() => {
+				t2 = setTimeout(() => {
+					animatingHorses.value = new Map(
+						newRound.horseIds.map(id => [id, true])
+					)
+
+					newRound.horseIds.forEach(horseId => {
+						const standing = roundResult.standings.find(s => s.horseId === horseId)
+
+						if (standing && standing.timeMs > 0) {
+							const t3 = setTimeout(() => {
+								finishedHorses.value.set(horseId, true)
+								finishedHorses.value = new Map(finishedHorses.value)
+							}, standing.timeMs)
+
+							t3s.push(t3)
+						}
+					})
+				}, 100)
+			}, 0)
+
+			onCleanup(() => {
+				clearTimeout(t1)
+				clearTimeout(t2)
+				t3s.forEach(clearTimeout)
+			})
 		})
 
-		return { currentRound, status, horsesCount, roundsCount, getHorseName, getHorseColor, getHorseStyle, getHorsePosition, getWinnerName }
+		return { currentRound, status, horsesCount, roundsCount, getHorseName, getHorseColor, getHorseStyle, getHorsePosition, getWinnerName, RunStatus }
 	}
 })
 </script>
@@ -234,8 +261,6 @@ export default defineComponent({
 	display: flex;
 	gap: 0;
 	border: 2px solid #8b4513;
-	border-radius: 12px;
-	overflow: hidden;
 }
 
 .lane-numbers {

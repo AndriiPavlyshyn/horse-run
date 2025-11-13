@@ -41,7 +41,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-@import "/node_modules/normalize.css/normalize.css";
 
 * {
 	box-sizing: border-box;
@@ -90,5 +89,11 @@ export default defineComponent({
 	background: white;
 	border-radius: 8px;
 	box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+@media screen and (max-width: 1200px) {
+	.main-content {
+		grid-template-columns: 1fr;
+	}
 }
 </style>

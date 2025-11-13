@@ -1,4 +1,9 @@
-export type RunStatus = 'idle' | 'ready' | 'running' | 'finished';
+export enum RunStatus {
+	IDLE = 'idle',
+	READY = 'ready',
+	RUNNING = 'running',
+	FINISHED = 'finished',
+}
 
 export interface IndexStore {
 	status: RunStatus
